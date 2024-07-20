@@ -9,7 +9,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git 'https://github.com/VijayThirumalaReddy335/ContainerizedMicroservice.git'
+                git 'https://github.com/VijayThirumalaReddy335/Deploy-and-Monitor-a-Web-Application.git'
             }
         }
         
