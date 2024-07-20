@@ -9,7 +9,11 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git 'https://github.com/VijayThirumalaReddy335/Deploy-and-Monitor-a-Web-Application.git'
+                script {
+                    // Set the branch name to 'feature/App' or any other branch if specified
+                    def branchName = env.BRANCH_NAME ?: 'feature/App'
+                    git url: 'https://github.com/VijayThirumalaReddy335/Deploy-and-Monitor-a-Web-Application.git', branch: branchName
+                }
             }
         }
         
@@ -53,10 +57,14 @@ pipeline {
 
         stage('Infrastructure Provisioning with Terraform') {
             steps {
-                git 'https://github.com/your/terraform-repository.git'
-                sh 'terraform validate'
-                sh 'terraform plan -out=tfplan'
-                sh 'terraform apply tfplan'
+                script {
+                    dir('terraform') {
+                        sh 'terraform init'
+                        sh 'terraform validate'
+                        sh 'terraform plan -out=tfplan'
+                        sh 'terraform apply tfplan'
+                    }
+                }
             }
         }
 
