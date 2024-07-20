@@ -1,0 +1,83 @@
+pipeline {
+    agent any
+
+    environment {
+        DOCKER_CREDENTIALS_ID = 'dockerhub-credentials'
+        DOCKER_IMAGE = 'vijaythirumalareddy335/first-application'
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                git 'https://github.com/VijayThirumalaReddy335/ContainerizedMicroservice.git'
+            }
+        }
+        
+        stage('Lint Dockerfile') {
+            steps {
+                script {
+                    sh 'docker run --rm -i hadolint/hadolint < Dockerfile'
+                }
+            }
+        }
+
+        stage('Unit Tests') {
+            steps {
+                sh 'mvn test'
+            }
+        }
+
+        stage('Build with Maven') {
+            steps {
+                sh 'mvn clean package'
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    docker.build("${DOCKER_IMAGE}:${env.BUILD_ID}")
+                }
+            }
+        }
+
+        stage('Push Docker Image') {
+            steps {
+                script {
+                    docker.withRegistry('', DOCKER_CREDENTIALS_ID) {
+                        docker.image("${DOCKER_IMAGE}:${env.BUILD_ID}").push('latest')
+                    }
+                }
+            }
+        }
+
+        stage('Infrastructure Provisioning with Terraform') {
+            steps {
+                git 'https://github.com/your/terraform-repository.git'
+                sh 'terraform validate'
+                sh 'terraform plan -out=tfplan'
+                sh 'terraform apply tfplan'
+            }
+        }
+
+        stage('Deploy to Kubernetes') {
+            steps {
+                script {
+                    sh 'kubectl apply -f k8s/Kubernetes_FirstApplication.yaml'
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            cleanWs()
+        }
+        success {
+            echo 'Pipeline completed successfully!'
+        }
+        failure {
+            echo 'Pipeline failed!'
+        }
+    }
+}
