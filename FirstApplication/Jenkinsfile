@@ -10,37 +10,36 @@ pipeline {
         stage('Checkout') {
             steps {
                 script {
-                    // Set the branch name to 'feature/App' or any other branch if specified
-                    def branchName = env.BRANCH_NAME ?: 'feature/App'
-                    git url: 'https://github.com/VijayThirumalaReddy335/Deploy-and-Monitor-a-Web-Application.git', branch: branchName
-                }
-            }
-        }
-        
-        stage('Lint Dockerfile') {
-            steps {
-                script {
-                    sh 'docker run --rm -i hadolint/hadolint < Dockerfile'
+                    git url: 'https://github.com/VijayThirumalaReddy335/Deploy-and-Monitor-a-Web-Application.git'
                 }
             }
         }
 
-        stage('Unit Tests') {
+        stage('Code Linting and Unit Tests') {
             steps {
-                sh 'mvn test'
+                script {
+                    // Linting Java code using Maven Checkstyle plugin
+                    sh 'mvn checkstyle:check'
+                    // Running unit tests
+                    sh 'mvn test'
+                }
             }
         }
 
         stage('Build with Maven') {
             steps {
-                sh 'mvn clean package'
+                script {
+                    // Building the application using Maven
+                    sh 'mvn clean package'
+                }
             }
         }
 
         stage('Build Docker Image') {
             steps {
                 script {
-                    docker.build("${DOCKER_IMAGE}:${env.BUILD_ID}")
+                    // Building Docker image
+                    dockerImage = docker.build("${env.DOCKER_IMAGE}:latest")
                 }
             }
         }
@@ -48,8 +47,9 @@ pipeline {
         stage('Push Docker Image') {
             steps {
                 script {
-                    docker.withRegistry('', DOCKER_CREDENTIALS_ID) {
-                        docker.image("${DOCKER_IMAGE}:${env.BUILD_ID}").push('latest')
+                    // Pushing Docker image to Docker Hub
+                    docker.withRegistry('https://index.docker.io/v1/', env.DOCKER_CREDENTIALS_ID) {
+                        dockerImage.push()
                     }
                 }
             }
@@ -58,20 +58,23 @@ pipeline {
         stage('Infrastructure Provisioning with Terraform') {
             steps {
                 script {
-                    dir('terraform') {
-                        sh 'terraform init'
-                        sh 'terraform validate'
-                        sh 'terraform plan -out=tfplan'
-                        sh 'terraform apply tfplan'
-                    }
+                    // Provisioning infrastructure using Terraform
+                    sh '''
+                    cd terraform
+                    terraform init
+                    terraform apply -auto-approve
+                    '''
                 }
             }
         }
 
         stage('Deploy to Kubernetes') {
             steps {
-                script {
-                    sh 'kubectl apply -f k8s/Kubernetes_FirstApplication.yaml'
+                withCredentials([file(credentialsId: 'KUBECONFIG_CREDENTIALS', variable: 'KUBECONFIG')]) {
+                    // Deploying to Kubernetes
+                    sh '''
+                    kubectl apply -f k8s/Kubernetes_FirstApplication.yaml
+                    '''
                 }
             }
         }
