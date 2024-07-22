@@ -79,12 +79,12 @@ This repository contains a simple Spring Boot application that is containerized 
 
 4. Create a Terraform plan:
     ```bash
-    terraform plan
+    terraform plan -out=tfplan
     ```
 
 5. Apply the Terraform plan:
     ```bash
-    terraform apply
+    terraform apply tfplan
     ```
 
 ### Step 5: Jenkins Pipeline
@@ -94,26 +94,27 @@ This repository contains a simple Spring Boot application that is containerized 
 
 ### Jenkinsfile Overview
 
-Environment Variables:
+**Environment Variables:**
 
-DOCKER_CREDENTIALS_ID: The credentials ID for Docker Hub.
-DOCKER_IMAGE: The Docker image name.
+- `DOCKER_CREDENTIALS_ID`: The credentials ID for Docker Hub.
+- `DOCKER_IMAGE`: The Docker image name.
 
-Stages:
+**Stages:**
 
-Checkout: Clones the Git repository.
-Code Linting and Unit Tests: Lints the code using Maven Checkstyle and runs unit tests.
-Build with Maven: Packages the application using Maven.
-Build Docker Image: Builds the Docker image.
-Push Docker Image: Pushes the Docker image to Docker Hub using the specified credentials.
-Infrastructure Provisioning with Terraform: Initializes and applies Terraform configurations for infrastructure provisioning.
-Deploy to Kubernetes: Applies Kubernetes deployment and service configurations using the provided kubeconfig credentials.
+1. **Checkout**: Clones the Git repository.
+2. **Code Linting and Unit Tests**: Lints the code using Maven Checkstyle and runs unit tests.
+3. **Build with Maven**: Packages the application using Maven.
+4. **Build Docker Image**: Builds the Docker image.
+5. **Push Docker Image**: Pushes the Docker image to Docker Hub using the specified credentials.
+6. **Infrastructure Provisioning with Terraform**: Initializes and applies Terraform configurations for infrastructure provisioning.
+7. **Deploy to Kubernetes**: Applies Kubernetes deployment and service configurations using the provided kubeconfig credentials.
 
-Post Actions:
+**Post Actions:**
 
-always: Cleans the workspace.
-success: Prints a success message.
-failure: Prints a failure message.
+- **always**: Cleans the workspace.
+- **success**: Prints a success message.
+- **failure**: Prints a failure message.
+
 This pipeline provides a robust CI/CD process, covering code linting, unit testing, Docker image creation, pushing to Docker Hub, infrastructure provisioning, and deployment to Kubernetes.
 
 ## Application Endpoints
@@ -132,8 +133,8 @@ This pipeline provides a robust CI/CD process, covering code linting, unit testi
 
 ## Kubernetes Deployment and Service
 
-- Deployment with 1 replica.
-- Service exposing the application on port 80.
+- **Deployment**: Defines a deployment with 1 replica.
+- **Service**: Exposes the application on port 80.
 
 ## Terraform Configuration
 
