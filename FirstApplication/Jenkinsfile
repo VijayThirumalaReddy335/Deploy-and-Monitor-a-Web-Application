@@ -10,26 +10,20 @@ pipeline {
         stage('Checkout') {
             steps {
                 script {
-                    // Set the branch name to 'feature/App' or any other branch if specified
-                    def branchName = env.BRANCH_NAME ?: 'feature/App'
-                    git url: 'https://github.com/VijayThirumalaReddy335/Deploy-and-Monitor-a-Web-Application.git', branch: branchName
+                    git url: 'https://github.com/VijayThirumalaReddy335/Deploy-and-Monitor-a-Web-Application.git'
                 }
             }
         }
         
-        stage('Lint Dockerfile') {
+        stage('Code Linting and Unit Tests') {
             steps {
-                script {
-                    sh 'docker run --rm -i hadolint/hadolint < Dockerfile'
-                }
-            }
-        }
+                // Linting Java code using Maven Checkstyle plugin
+                sh 'mvn checkstyle:check'
 
-        stage('Unit Tests') {
-            steps {
+                // Running unit tests
                 sh 'mvn test'
-            }
         }
+    }
 
         stage('Build with Maven') {
             steps {
