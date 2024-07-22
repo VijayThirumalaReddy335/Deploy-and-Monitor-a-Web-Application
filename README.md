@@ -79,12 +79,12 @@ This repository contains a simple Spring Boot application that is containerized 
 
 4. Create a Terraform plan:
     ```bash
-    terraform plan -out=tfplan
+    terraform plan
     ```
 
 5. Apply the Terraform plan:
     ```bash
-    terraform apply tfplan
+    terraform apply
     ```
 
 ### Step 5: Jenkins Pipeline
