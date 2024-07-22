@@ -79,12 +79,12 @@ This repository contains a simple Spring Boot application that is containerized 
 
 4. Create a Terraform plan:
     ```bash
-    terraform plan -out=tfplan
+    terraform plan
     ```
 
 5. Apply the Terraform plan:
     ```bash
-    terraform apply tfplan
+    terraform apply
     ```
 
 ### Step 5: Jenkins Pipeline
@@ -94,14 +94,27 @@ This repository contains a simple Spring Boot application that is containerized 
 
 ### Jenkinsfile Overview
 
-- **Checkout**: Clones the repository.
-- **Lint Dockerfile**: Uses Hadolint to lint the Dockerfile.
-- **Unit Tests**: Runs unit tests using Maven.
-- **Build with Maven**: Packages the Spring Boot application using Maven.
-- **Build Docker Image**: Builds the Docker image.
-- **Push Docker Image**: Pushes the Docker image to Docker Hub.
-- **Infrastructure Provisioning with Terraform**: Provisions infrastructure using Terraform.
-- **Deploy to Kubernetes**: Deploys the application to the Kubernetes cluster.
+Environment Variables:
+
+DOCKER_CREDENTIALS_ID: The credentials ID for Docker Hub.
+DOCKER_IMAGE: The Docker image name.
+
+Stages:
+
+Checkout: Clones the Git repository.
+Code Linting and Unit Tests: Lints the code using Maven Checkstyle and runs unit tests.
+Build with Maven: Packages the application using Maven.
+Build Docker Image: Builds the Docker image.
+Push Docker Image: Pushes the Docker image to Docker Hub using the specified credentials.
+Infrastructure Provisioning with Terraform: Initializes and applies Terraform configurations for infrastructure provisioning.
+Deploy to Kubernetes: Applies Kubernetes deployment and service configurations using the provided kubeconfig credentials.
+
+Post Actions:
+
+always: Cleans the workspace.
+success: Prints a success message.
+failure: Prints a failure message.
+This pipeline provides a robust CI/CD process, covering code linting, unit testing, Docker image creation, pushing to Docker Hub, infrastructure provisioning, and deployment to Kubernetes.
 
 ## Application Endpoints
 
